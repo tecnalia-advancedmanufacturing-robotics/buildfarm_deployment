@@ -218,6 +218,19 @@ class profile::jenkins::master {
     notify => Service['jenkins'],
   }
 
+  # Add the new users file to keep the admin user
+  # See https://github.com/ros-infrastructure/buildfarm_deployment/issues/210
+  file { '/var/lib/jenkins/users/users.xml':
+    ensure => 'present',
+    mode => '0640',
+    owner => jenkins,
+    group => jenkins,
+    source => 'puppet:///modules/jenkins_files/var/lib/jenkins/users/users.xml',
+    require => [Package['jenkins'],
+    File[$user_dirs],],
+    notify => Service['jenkins'],
+  }
+
   # For our convenience reading the logs
   class { 'timezone':
     timezone => hiera('timezone', 'America/Los_Angeles'),
